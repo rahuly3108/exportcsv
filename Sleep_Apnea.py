@@ -13,6 +13,7 @@ import dash_table
 from sklearn.metrics import roc_curve, auc
 import statsmodels.api as sm
 from dash.exceptions import PreventUpdate
+from pathlib import Path
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY], suppress_callback_exceptions=True)
 server = app.server
@@ -41,10 +42,10 @@ custom_classes = {
 }
 # Define the button
 button = html.Button('Menu', id='button',
-                     n_clicks=0, style={"position": "fixed",
-                                        "top": "1px",
+                     n_clicks=0, style={'position': 'fixed',
+                                        'top': '1px',
                                         "left": "20px",
-                                        "transition": "left 0.5s",
+                                        'transition': 'left 0.5s',
                                         'background-color': '#2c3e50',
                                         'color': 'white',
                                         'display': 'none',
@@ -209,19 +210,20 @@ def render_page_content(pathname, authenticated):
             html.Div(id="tabs-content"),
         ]
     elif pathname == "/page-2":
-        return html.Div([
+        return [
             html.H1('Sleep Apnea Prediction', style={'textAlign': 'center'}),
             html.Div(id='output-container-button',
                          children='Enter your details and press submit -'),
             html.Br(),
             html.Div([
+                html.Div([
                 html.Label('1.', style={'display': 'inline-block', 'width': '20px'}),
-                html.Label('Enter your age :', style={'display': 'inline-block', 'margin-right': '10px'}),
+                html.Label('Age :', style={'display': 'inline-block', 'margin-right': '10px'}),
                 dcc.Input(id='input-age', type='number', placeholder='Age', min=0,
                           style={'width': '50px', 'margin-right': '10px'}),
                 html.Div(style={'margin-top': '10px'}),  # Add space between elements
                 html.Label('2.', style={'display': 'inline-block', 'width': '20px'}),
-                html.Label('Select your gender :', style={'margin-right': '10px'}),
+                html.Label('Gender :', style={'margin-right': '10px'}),
                 dcc.RadioItems(
                     id='input-gender',
                     options=[
@@ -234,22 +236,37 @@ def render_page_content(pathname, authenticated):
                 html.Br(),
                 # html.Div(style={'margin-top': '10px'}),  # Add space between elements
                 html.Label('3.', style={'display': 'inline-block', 'width': '20px'}),
-                html.Label('Enter your BMI :',
+                html.Label('BMI :',
                            style={'display': 'inline-block', 'margin-top': '10px', 'margin-right': '10px'}),
                 dcc.Input(id='input-bmi', type='number', placeholder='BMI', min=0,
                           style={'display': 'inline-block', 'width': '51px', 'margin-right': '10px'}),
                 html.Div(style={'margin-top': '10px'}),
                 html.Label('4.', style={'display': 'inline-block', 'width': '20px'}),
-                html.Label('Enter your neck size(cms) :', style={'margin-right': '10px'}),
+                html.Label('Neck Size(cms) :', style={'margin-right': '10px'}),
                 dcc.Input(id='input-neck', type='number', placeholder='NS', min=0,
                           style={'width': '50px', 'margin-right': '10px'}),
                 html.Div(style={'margin-top': '10px'}),
                 html.Label('5.', style={'display': 'inline-block', 'width': '20px'}),
-                html.Label('Enter your ESS Score :', style={'margin-right': '10px'}),
+                html.Label('ESS Score :', style={'margin-right': '10px'}),
                 dcc.Input(id='input-ess', type='number', placeholder='ESS', min=0,max=25,
-                          style={'width': '50px', 'margin-right': '10px'}),
-                html.Div(style={'margin-top': '10px'}),
-                html.Label('6.', style={'display': 'inline-block', 'width': '20px'}),
+                          style={'width': '50px', 'margin-right': '5px'}),
+                    html.Br(),
+                    html.Label('6.', style={'display': 'inline-block', 'width': '20px'}),
+                html.Label('Active smoker? ', style={'margin-right': '10px', 'margin-top': '5px'}),
+                dcc.RadioItems(
+                    id='input-smoker',
+                    options=[
+                        {'label': 'Yes', 'value': 'Yes'},
+                        {'label': 'No', 'value': 'No'}
+                    ],
+                    labelStyle={'display': 'inline-block', 'margin-right': '10px'},
+                    style={'display': 'inline-block'}
+                ),
+                    html.Br(),
+        ], style={'width': '39%','border': '2px solid #2c3e50', 'padding': '5px','display': 'inline-block','float':'left','border-radius': '10px'}) ]),
+                html.Div([
+                    html.Div([
+                html.Label('7.', style={'display': 'inline-block', 'width': '20px'}),
                 html.Label('Do you often feel TIRED, fatigued, or sleepy during daytime? ',
                            style={'margin-right': '10px'}),
                 dcc.RadioItems(
@@ -262,7 +279,7 @@ def render_page_content(pathname, authenticated):
                     style={'display': 'inline-block'}
                 ),
                 html.Br(),
-                html.Label('7.', style={'display': 'inline-block', 'width': '20px'}),
+                html.Label('8.', style={'display': 'inline-block', 'width': '20px'}),
                 html.Label('Has anyone OBSERVED you stop breathing during your sleep? ',
                            style={'margin-right': '10px', 'margin-top': '10px'}),
                 dcc.RadioItems(
@@ -275,7 +292,7 @@ def render_page_content(pathname, authenticated):
                     style={'display': 'inline-block'}
                 ),
                 html.Br(),
-                html.Label('8.', style={'display': 'inline-block', 'width': '20px'}),
+                html.Label('9.', style={'display': 'inline-block', 'width': '20px'}),
                 html.Label('Do you have complaints of Memory loss? ',
                            style={'margin-right': '10px', 'margin-top': '10px'}),
                 dcc.RadioItems(
@@ -288,7 +305,7 @@ def render_page_content(pathname, authenticated):
                     style={'display': 'inline-block'}
                 ),
                 html.Br(),
-                html.Label('9.', style={'display': 'inline-block', 'width': '20px'}),
+                html.Label('10. ', style={'display': 'inline-block', 'width': '30px'}),
                 html.Label('Do you have morning headaches? ', style={'margin-right': '10px', 'margin-top': '10px'}),
                 dcc.RadioItems(
                     id='input-morning-headaches',
@@ -300,22 +317,10 @@ def render_page_content(pathname, authenticated):
                     style={'display': 'inline-block'}
                 ),
                 html.Br(),
-                html.Label('10.', style={'display': 'inline-block', 'width': '30px'}),
+                html.Label('11.', style={'display': 'inline-block', 'width': '30px'}),
                 html.Label('Do you have Hypertension? ', style={'margin-right': '10px', 'margin-top': '10px'}),
                 dcc.RadioItems(
                     id='input-hypertension',
-                    options=[
-                        {'label': 'Yes', 'value': 'Yes'},
-                        {'label': 'No', 'value': 'No'}
-                    ],
-                    labelStyle={'display': 'inline-block', 'margin-right': '10px'},
-                    style={'display': 'inline-block'}
-                ),
-                html.Br(),
-                html.Label('11.', style={'display': 'inline-block', 'width': '30px'}),
-                html.Label('Are you an Active smoker? ', style={'margin-right': '10px', 'margin-top': '10px'}),
-                dcc.RadioItems(
-                    id='input-smoker',
                     options=[
                         {'label': 'Yes', 'value': 'Yes'},
                         {'label': 'No', 'value': 'No'}
@@ -335,8 +340,10 @@ def render_page_content(pathname, authenticated):
                     labelStyle={'display': 'inline-block', 'margin-right': '10px'},
                     style={'display': 'inline-block'}
                 ),
+                    ],style={'width': '59%','border': '2px solid #2c3e50', 'padding': '12px','display': 'inline-block','float':'right','border-radius': '10px'})
+                ]),
                 html.Br(),
-                html.Button(
+            html.Button(
                     'Submit',
                     id='submit-button',
                     n_clicks=0,
@@ -345,19 +352,20 @@ def render_page_content(pathname, authenticated):
                         'border': 'none',
                         'color': 'white',
                         'padding': '5px 15px',
-                        'text-align': 'center',
                         'text-decoration': 'none',
-                        'display': 'inline-block',
+                        'display': 'block',
+                        #'flex-direction':'row',
                         'font-size': '16px',
-                        'margin-top': '20px',
-                        'cursor': 'pointer',
-                        'border-radius': '10px'
+                        'margin-top': '210px',
+                        'margin-left': '1px',
+                        #'cursor': 'pointer',
+                        'border-radius': '30px',
+                        #'float':'left'
                     }
                 ),
                 html.Br(),
-                html.Div(id='data-table-container')  # Container for displaying data in table
-            ])
-        ])
+                html.Div(id='data-table-container')
+        ]
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
         [
@@ -1036,6 +1044,9 @@ def update_table(n_clicks, Age, Gender, WeightStatus, Neck_Size_cms, Total_Score
             df2.rename(columns={'Active Smoker': 'Active_smoker'}, inplace=True)
             df2.rename(columns={'Loud Snoring': 'Do_you_SNORE_loudly'}, inplace=True)
             # print(df2.info())
+            df2.to_csv('test_data.csv', index=False)
+            current_directory = Path.cwd()
+            print("Current Directory:", current_directory)
 
             # Read the Excel file
             df1 = pd.read_excel("Sleep_Apnea_Data_Merged.xlsx")
@@ -1091,12 +1102,15 @@ def update_table(n_clicks, Age, Gender, WeightStatus, Neck_Size_cms, Total_Score
                              'margin-left': '15px'}  # Optional: Styling the table
             )
             # Create a div to display the predicted probabilities_test
-            if predicted_classes_test.values[0] == 1:
-                prediction_result = f'Patient has sleep apnea( Estimated Prob={predicted_probabilities_test.values[0]:.2f}).'
-                prediction_color = 'red'
-            else:
+            if predicted_probabilities_test.values[0] < 0.50:
                 prediction_result = f'Patient does not have sleep apnea (Estimated Prob={predicted_probabilities_test.values[0]:.2f}).'
                 prediction_color = 'green'
+            elif predicted_probabilities_test.values[0] >= 0.50 and predicted_probabilities_test.values[0] < 0.92:
+                prediction_result = f'Patient likely has sleep apnea (Estimated Prob={predicted_probabilities_test.values[0]:.2f}).'
+                prediction_color = 'orange'
+            else:
+                prediction_result = f'Patient has sleep apnea (Estimated Prob={predicted_probabilities_test.values[0]:.2f}).'
+                prediction_color = 'red'
 
                 # Create separate components for table and prediction message
             table_component = html.Div([html.H4('Data Table:'), table])
@@ -1143,4 +1157,4 @@ def display_login_feedback(authenticated):
         return "Invalid username or password"
     
 if __name__ == '__main__':
-    app.run_server(debug=True, port=3089)
+    app.run_server(debug=True, port=3051)
